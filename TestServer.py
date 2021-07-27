@@ -1,19 +1,31 @@
+import json
+from Route import Route
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
-import json
 import os
 
 class TestServer(BaseHTTPRequestHandler):
+    route = Route()
+
     def do_GET(self):
         try: 
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             message = ""
-            if self.path.endswith("/getuser"):
-                fobj = open("user/data.txt")
-                for line in fobj:
-                    message += line + "\n"
+
+            actualRoute = self.route.getRoute("GET", self.path)
+            # if self.path.endswith("/getuser"):
+            #     fobj = open("user/data.txt")
+            #     for line in fobj:
+            #         message += line + "\n"
+            # elif self.path.endswith("/route"):
+            #     routes = self.route.getRoute(0)
+            #     print(routes)
+            if len(actualRoute) > 0:
+                endPath, executableMethod = actualRoute[0]
+                res = executableMethod()
+                print(res)
             else:
                 message += "<html><body>404 not found!</body></html>"
             self.wfile.write(message.encode('utf-8'))
@@ -32,20 +44,26 @@ class TestServer(BaseHTTPRequestHandler):
         response.write(b'Received: ')
         response.write(body)
 
-        if not os.path.exists("user"):
-            os.mkdir("user")
-        fobj = open("user/data.txt", "a")
-        obj = body.decode('utf-8')
-        obj = obj.strip()
-        obj = obj.split("\n")
-        obj = "".join(obj)
-        obj = obj.split("\r")
-        obj = "".join(obj)
-        obj = obj.split(" ")
-        obj = "".join(obj)
-        print(obj)
-        fobj.write(obj + "\n")
-        fobj.close()
+        actualRoute = self.route.getRoute("POST", self.path)
+        if len(actualRoute) > 0:
+            endPath, executableMethod = actualRoute[0]
+            request = json.loads(body.decode("utf-8"))
+            res = executableMethod(request)
+
+        # if not os.path.exists("user"):
+        #     os.mkdir("user")
+        # fobj = open("user/data.txt", "a")
+        # obj = body.decode('utf-8')
+        # obj = obj.strip()
+        # obj = obj.split("\n")
+        # obj = "".join(obj)
+        # obj = obj.split("\r")
+        # obj = "".join(obj)
+        # obj = obj.split(" ")
+        # obj = "".join(obj)
+        # print(obj)
+        # fobj.write(obj + "\n")
+        # fobj.close()
 
         self.wfile.write(response.getvalue())
 
