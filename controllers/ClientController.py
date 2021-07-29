@@ -1,6 +1,7 @@
+from app.Controller import Controller
 from model.Client import Client
 
-class ClientController:
+class ClientController(Controller):
     
     def index(req = ""):
         return "ClientIndex"
@@ -10,10 +11,10 @@ class ClientController:
         client.name = req["name"]
         client.age = req["age"]
 
-        client.save()
-        return "ClientAdd : POST"
+        res = client.save()
+        return res
 
-    def update(req = ""):
+    def update(req):
         return "ClientUpdate : POST"
 
     def delete(req = ""):

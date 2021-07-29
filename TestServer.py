@@ -2,7 +2,6 @@ import json
 from Route import Route
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from io import BytesIO
-import os
 
 class TestServer(BaseHTTPRequestHandler):
     route = Route()
@@ -15,13 +14,6 @@ class TestServer(BaseHTTPRequestHandler):
             message = ""
 
             actualRoute = self.route.getRoute("GET", self.path)
-            # if self.path.endswith("/getuser"):
-            #     fobj = open("user/data.txt")
-            #     for line in fobj:
-            #         message += line + "\n"
-            # elif self.path.endswith("/route"):
-            #     routes = self.route.getRoute(0)
-            #     print(routes)
             if len(actualRoute) > 0:
                 endPath, executableMethod = actualRoute[0]
                 res = executableMethod()
@@ -50,6 +42,8 @@ class TestServer(BaseHTTPRequestHandler):
             request = json.loads(body.decode("utf-8"))
             res = executableMethod(request)
 
+        self.wfile.write(res.encode("utf-8"))
+
         # if not os.path.exists("user"):
         #     os.mkdir("user")
         # fobj = open("user/data.txt", "a")
@@ -65,7 +59,6 @@ class TestServer(BaseHTTPRequestHandler):
         # fobj.write(obj + "\n")
         # fobj.close()
 
-        self.wfile.write(response.getvalue())
 
         # self.send_response(200)
         # self.send_header("Content-type", "text/html")
