@@ -26,10 +26,10 @@ class ClientController(Controller):
 
         res = client.save()
         return res
-        return "ClientUpdate : POST"
 
-    def delete(req = ""):
-        return "ClientDelete : POST"
+    def delete(req, id):
+        client = Client(id)
+        return client.delete()
 
     def getUsers():
         msg = ''

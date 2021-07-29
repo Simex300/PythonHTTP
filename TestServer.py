@@ -43,8 +43,11 @@ class TestServer(BaseHTTPRequestHandler):
         actualRoute = self.route.getRoute("POST", self.path)
         if len(actualRoute) == 3:
             endPath, executableMethod, parameter = actualRoute
-            request = json.loads(body.decode("utf-8"))
-            res = executableMethod(request, parameter)
+            if body.decode("utf-8") != "":
+                request = json.loads(body.decode("utf-8"))
+                res = executableMethod(request, parameter)
+            else:
+                res = executableMethod("", parameter)
         elif len(actualRoute) == 2:
             endPath, executableMethod = actualRoute
             request = json.loads(body.decode("utf-8"))

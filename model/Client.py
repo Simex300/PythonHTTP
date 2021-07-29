@@ -53,6 +53,16 @@ class Client(Model):
         
         return data
 
+    def delete(self):
+        fobj = open(self.__loc, "r")
+        alldata = fobj.readlines()
+        res = alldata.pop(self.__fileLine)
+
+        fobj = open(self.__loc, "w")
+        fobj.writelines(alldata)
+        fobj.close()
+        return res
+
     def __storeData(self, data):
         if self.__fileLine > -1:
            fobj = open(self.__loc, "r")
