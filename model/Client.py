@@ -1,37 +1,51 @@
 from app.Model import Model
 import json
 import os
+import re
 
 class Client(Model):
     __counter = 0
     __loc = "data/client.txt"
+    __fileLine = -1
+    id = -1
     name = ""
     age = ""
 
-    def __init__(self, name="", age=""):
+    def __init__(self, id = ""):
         self.checkDirectory()
         self.checkFile(self.__loc)
-        self.name = name
-        self.age = age
+        if id != "":
+            self.get(id)
         self.__counter = self.__count()
 
-    def get(self, name="", age=""):
+    def get(self):
         res = ""
         fobj = open(self.__loc)
-        if name == "" and age == "":
-            for line in fobj:
-                res += line + "\n"
-        else:
-            for line in fobj:
-                if line.index(name) >= 0 or line.index(age) >= 0:
-                    res += line
-                    break
+        for line in fobj:
+            res += line
         fobj.close()
+        return res
+
+    def get(self, id):
+        res = ""
+        count = -1
+        fobj = open(self.__loc)
+        for line in fobj:
+            count += 1
+            if re.search('"id": %s' % id, line):
+                res = line
+                break
+        
+        self.__fileLine = count
+        self.__loadJSON(json.loads(res))
         return res
 
     def save(self):
         obj = dict()
-        obj["id"] = self.__counter
+        if self.id != -1: 
+            obj["id"] = self.id
+        else: 
+            obj["id"] = self.__counter
         obj["name"] = self.name
         obj["age"] = self.age
         data = json.dumps(obj)
@@ -40,9 +54,19 @@ class Client(Model):
         return data
 
     def __storeData(self, data):
-        fobj = open(self.__loc, "a")
-        fobj.write(data + "\n")
-        fobj.close()
+        if self.__fileLine > -1:
+           fobj = open(self.__loc, "r")
+           alldata = fobj.readlines()
+           alldata[self.__fileLine] = data + "\n"
+
+           fobj = open(self.__loc, "w")
+           fobj.writelines(alldata)
+           fobj.close()
+        
+        else:
+            fobj = open(self.__loc, "a")
+            fobj.write(data + "\n")
+            fobj.close()
 
     def __count(self):
         fobj = open(self.__loc)
@@ -54,3 +78,9 @@ class Client(Model):
     
     def count(self):
         return self.__count
+
+    def __loadJSON(self, data):
+        print("jsonData", data)
+        self.id = data["id"]
+        self.name = data["name"]
+        self.age = data["age"]

@@ -14,10 +14,14 @@ class TestServer(BaseHTTPRequestHandler):
             message = ""
 
             actualRoute = self.route.getRoute("GET", self.path)
-            if len(actualRoute) > 0:
-                endPath, executableMethod = actualRoute[0]
+            if len(actualRoute) == 2:
+                endPath, executableMethod = actualRoute
                 res = executableMethod()
-                print(res)
+                message = res
+            elif len(actualRoute) == 3: 
+                endPath, executableMethod, parameter = actualRoute
+                res = executableMethod("", parameter)
+                message = res
             else:
                 message += "<html><body>404 not found!</body></html>"
             self.wfile.write(message.encode('utf-8'))
@@ -37,8 +41,12 @@ class TestServer(BaseHTTPRequestHandler):
         response.write(body)
 
         actualRoute = self.route.getRoute("POST", self.path)
-        if len(actualRoute) > 0:
-            endPath, executableMethod = actualRoute[0]
+        if len(actualRoute) == 3:
+            endPath, executableMethod, parameter = actualRoute
+            request = json.loads(body.decode("utf-8"))
+            res = executableMethod(request, parameter)
+        elif len(actualRoute) == 2:
+            endPath, executableMethod = actualRoute
             request = json.loads(body.decode("utf-8"))
             res = executableMethod(request)
 
