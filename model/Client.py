@@ -81,8 +81,13 @@ class Client(Model):
     def __count(self):
         fobj = open(self.__loc)
         count = 0
-        for line in fobj:
-            count += 1
+        fileLines = fobj.readlines()
+        if len(fileLines) > 0:
+            lastrecord = fileLines[len(fileLines) - 1]
+            lastrecord = json.loads(lastrecord)
+            print(lastrecord['id'])
+            count = lastrecord['id'] + 1
+        
         fobj.close()
         return count
     
